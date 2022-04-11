@@ -220,23 +220,16 @@ contract ReaperStrategyWigo is ReaperBaseStrategyv2 {
      * Note: this is not an emergency withdraw function. For that, see panic().
      */
     function _retireStrat() internal override {
-        // IMasterChef(masterChef).deposit(poolId, 0); // deposit 0 to claim rewards
+        (uint256 poolBal, ) = IMasterChef(masterChef).userInfo(poolId, address(this));
+        IMasterChef(masterChef).withdraw(poolId, poolBal);
 
-        // uint256 wigoBalance = IERC20Upgradeable(WIGO).balanceOf(address(this));
-        // _swap(wigoBalance, WIGOToWftmPath, WIGO_ROUTER);
+        uint256 wigoBalance = IERC20Upgradeable(WIGO).balanceOf(address(this));
+        _swap(WIGO, WFTM, wigoBalance);
+        
+        _addLiquidity();
 
-        // uint256 wftmBal = IERC20Upgradeable(WFTM).balanceOf(address(this));
-        // _swap(wftmBal, wftmToTombPath, WIGO_ROUTER);
-        // uint256 tombHalf = IERC20Upgradeable(lpToken0).balanceOf(address(this)) / 2;
-        // _swap(tombHalf, tombToMaiPath, WIGO_ROUTER);
-
-        // _addLiquidity();
-
-        // (uint256 poolBal, ) = IMasterChef(masterChef).userInfo(poolId, address(this));
-        // IMasterChef(masterChef).withdraw(poolId, poolBal);
-
-        // uint256 wantBalance = IERC20Upgradeable(want).balanceOf(address(this));
-        // IERC20Upgradeable(want).safeTransfer(vault, wantBalance);
+        uint256 wantBalance = IERC20Upgradeable(want).balanceOf(address(this));
+        IERC20Upgradeable(want).safeTransfer(vault, wantBalance);
     }
 
     /**

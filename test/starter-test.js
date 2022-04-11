@@ -195,7 +195,7 @@ describe('Vaults', function () {
   describe('Strategy', function () {
     xit('should be able to pause and unpause', async function () {
       await strategy.pause();
-      const depositAmount = toWantUnit('1');
+      const depositAmount = await want.balanceOf(wantHolderAddr);
       await expect(vault.connect(wantHolder).deposit(depositAmount)).to.be.reverted;
 
       await strategy.unpause();
@@ -203,7 +203,7 @@ describe('Vaults', function () {
     });
 
     xit('should be able to panic', async function () {
-      const depositAmount = toWantUnit('0.0007');
+      const depositAmount = await want.balanceOf(wantHolderAddr);
       await vault.connect(wantHolder).deposit(depositAmount);
       const vaultBalance = await vault.balance();
       const strategyBalance = await strategy.balanceOf();
@@ -215,7 +215,7 @@ describe('Vaults', function () {
     });
 
     xit('should be able to retire strategy', async function () {
-      const depositAmount = toWantUnit('100');
+      const depositAmount = await want.balanceOf(wantHolderAddr);
       await vault.connect(wantHolder).deposit(depositAmount);
       const vaultBalance = await vault.balance();
       const strategyBalance = await strategy.balanceOf();
@@ -229,11 +229,11 @@ describe('Vaults', function () {
       expect(newStrategyBalance).to.be.lt(allowedImprecision);
     });
 
-    xit('should be able to retire strategy with no balance', async function () {
+    it('should be able to retire strategy with no balance', async function () {
       await expect(strategy.retireStrat()).to.not.be.reverted;
     });
 
-    it('should be able to estimate harvest', async function () {
+    xit('should be able to estimate harvest', async function () {
       const userBalance = await want.balanceOf(wantHolderAddr);
       await vault.connect(wantHolder).deposit(userBalance);
       await moveBlocksForward(100);
