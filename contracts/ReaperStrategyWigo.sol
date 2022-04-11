@@ -91,10 +91,8 @@ contract ReaperStrategyWigo is ReaperBaseStrategyv2 {
      */
     function _harvestCore() internal override {
         _claimRewards();
-        // uint256 wigoBalance = IERC20Upgradeable(WIGO).balanceOf(address(this));
-        // _swap(wigoBalance, WIGOToWftmPath, WIGO_ROUTER);
-
-        // _chargeFees();
+        _swapRewardsToWFTM();
+        _chargeFees();
 
         // uint256 wftmBal = IERC20Upgradeable(WFTM).balanceOf(address(this));
         // _swap(wftmBal, wftmToTombPath, WIGO_ROUTER);
@@ -111,21 +109,29 @@ contract ReaperStrategyWigo is ReaperBaseStrategyv2 {
 
     function _swapRewardsToWFTM() internal {
         uint256 wftmBalance = IERC20Upgradeable(WFTM).balanceOf(address(this));
+        _swap(WFTM, WIGO, wftmBalance);
     }
 
     /**
      * @dev Helper function to swap tokens given an {_amount}, swap {_path}, and {_router}.
      */
-    function _swap(uint256 _amount, address[] memory _path) internal {
-        if (_path.length < 2 || _amount == 0) {
+    function _swap(
+        address _from,
+        address _to,
+        uint256 _amount
+    ) internal {
+        if (_from == _to || _amount == 0) {
             return;
         }
 
-        IERC20Upgradeable(_path[0]).safeIncreaseAllowance(WIGO_ROUTER, _amount);
+        address[] memory path = new address[](2);
+        path[0] = _from;
+        path[1] = _to;
+        IERC20Upgradeable(_from).safeIncreaseAllowance(WIGO_ROUTER, _amount);
         IUniswapV2Router02(WIGO_ROUTER).swapExactTokensForTokensSupportingFeeOnTransferTokens(
             _amount,
             0,
-            _path,
+            path,
             address(this),
             block.timestamp
         );
