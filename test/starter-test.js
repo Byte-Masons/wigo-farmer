@@ -171,18 +171,17 @@ describe('Vaults', function () {
     });
 
     it('should provide yield', async function () {
-      const timeToSkip = 3600;
-      const initialUserBalance = await want.balanceOf(wantHolderAddr);
-      const depositAmount = initialUserBalance.div(10);
+      const timeToSkip = 100;
+      const depositAmount = await want.balanceOf(wantHolderAddr);
 
       await vault.connect(wantHolder).deposit(depositAmount);
       const initialVaultBalance = await vault.balance();
 
-      await strategy.updateHarvestLogCadence(timeToSkip / 2);
+      await strategy.updateHarvestLogCadence(1);
 
       const numHarvests = 5;
       for (let i = 0; i < numHarvests; i++) {
-        await moveTimeForward(timeToSkip);
+        await moveBlocksForward(timeToSkip);
         await strategy.harvest();
       }
 

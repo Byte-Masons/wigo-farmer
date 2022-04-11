@@ -93,14 +93,8 @@ contract ReaperStrategyWigo is ReaperBaseStrategyv2 {
         _claimRewards();
         _swapRewardsToWFTM();
         _chargeFees();
-
-        // uint256 wftmBal = IERC20Upgradeable(WFTM).balanceOf(address(this));
-        // _swap(wftmBal, wftmToTombPath, WIGO_ROUTER);
-        // uint256 tombHalf = IERC20Upgradeable(lpToken0).balanceOf(address(this)) / 2;
-        // _swap(tombHalf, tombToMaiPath, WIGO_ROUTER);
-
-        // _addLiquidity();
-        // deposit();
+        _addLiquidity();
+        deposit();
     }
 
     function _claimRewards() internal {
@@ -108,8 +102,8 @@ contract ReaperStrategyWigo is ReaperBaseStrategyv2 {
     }
 
     function _swapRewardsToWFTM() internal {
-        uint256 wftmBalance = IERC20Upgradeable(WFTM).balanceOf(address(this));
-        _swap(WFTM, WIGO, wftmBalance);
+        uint256 wigoBalance = IERC20Upgradeable(WIGO).balanceOf(address(this));
+        _swap(WIGO, WFTM, wigoBalance);
     }
 
     /**
@@ -160,6 +154,15 @@ contract ReaperStrategyWigo is ReaperBaseStrategyv2 {
      * @dev Core harvest function. Adds more liquidity using {lpToken0} and {lpToken1}.
      */
     function _addLiquidity() internal {
+        IERC20Upgradeable wftm = IERC20Upgradeable(WFTM);
+        uint256 wftmBalanceHalf = wftm.balanceOf(address(this)) / 2;
+
+        if (lpToken0 == WFTM) {
+            _swap(WFTM, lpToken1, wftmBalanceHalf);
+        } else {
+            _swap(WFTM, lpToken0, wftmBalanceHalf);
+        }
+
         uint256 lp0Bal = IERC20Upgradeable(lpToken0).balanceOf(address(this));
         uint256 lp1Bal = IERC20Upgradeable(lpToken1).balanceOf(address(this));
 
