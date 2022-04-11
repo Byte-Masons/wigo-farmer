@@ -106,7 +106,7 @@ contract ReaperStrategyWigo is ReaperBaseStrategyv2 {
     }
 
     /**
-     * @dev Helper function to swap tokens given an {_amount}, swap {_path}, and {_router}.
+     * @dev Helper function to swap tokens
      */
     function _swap(
         address _from,
@@ -225,7 +225,7 @@ contract ReaperStrategyWigo is ReaperBaseStrategyv2 {
 
         uint256 wigoBalance = IERC20Upgradeable(WIGO).balanceOf(address(this));
         _swap(WIGO, WFTM, wigoBalance);
-        
+
         _addLiquidity();
 
         uint256 wantBalance = IERC20Upgradeable(want).balanceOf(address(this));
