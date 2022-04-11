@@ -74,7 +74,7 @@ describe('Vaults', function () {
 
     //get artifacts
     Vault = await ethers.getContractFactory('ReaperVaultv1_4');
-    Strategy = await ethers.getContractFactory('ReaperStrategyTombMai');
+    Strategy = await ethers.getContractFactory('ReaperStrategyWigo');
     Want = await ethers.getContractFactory('@openzeppelin/contracts/token/ERC20/ERC20.sol:ERC20');
 
     //deploy contracts
@@ -106,52 +106,6 @@ describe('Vaults', function () {
       expect(totalBalance).to.equal(0);
       expect(availableBalance).to.equal(0);
       expect(pricePerFullShare).to.equal(ethers.utils.parseEther('1'));
-    });
-
-    // Upgrade tests are ok to skip IFF no changes to BaseStrategy are made
-    it('should not allow implementation upgrades without initiating cooldown', async function () {
-      const StrategyV2 = await ethers.getContractFactory('TestReaperStrategyTombMaiV2');
-      await expect(hre.upgrades.upgradeProxy(strategy.address, StrategyV2)).to.be.revertedWith(
-        'cooldown not initiated or still active',
-      );
-    });
-
-    it('should not allow implementation upgrades before timelock has passed', async function () {
-      await strategy.initiateUpgradeCooldown();
-
-      const StrategyV2 = await ethers.getContractFactory('TestReaperStrategyTombMaiV3');
-      await expect(hre.upgrades.upgradeProxy(strategy.address, StrategyV2)).to.be.revertedWith(
-        'cooldown not initiated or still active',
-      );
-    });
-
-    it('should allow implementation upgrades once timelock has passed', async function () {
-      const StrategyV2 = await ethers.getContractFactory('TestReaperStrategyTombMaiV2');
-      const timeToSkip = (await strategy.UPGRADE_TIMELOCK()).add(10);
-      await strategy.initiateUpgradeCooldown();
-      await moveTimeForward(timeToSkip.toNumber());
-      await hre.upgrades.upgradeProxy(strategy.address, StrategyV2);
-    });
-
-    it('successive upgrades need to initiate timelock again', async function () {
-      const StrategyV2 = await ethers.getContractFactory('TestReaperStrategyTombMaiV2');
-      const timeToSkip = (await strategy.UPGRADE_TIMELOCK()).add(10);
-      await strategy.initiateUpgradeCooldown();
-      await moveTimeForward(timeToSkip.toNumber());
-      await hre.upgrades.upgradeProxy(strategy.address, StrategyV2);
-
-      const StrategyV3 = await ethers.getContractFactory('TestReaperStrategyTombMaiV3');
-      await expect(hre.upgrades.upgradeProxy(strategy.address, StrategyV3)).to.be.revertedWith(
-        'cooldown not initiated or still active',
-      );
-
-      await strategy.initiateUpgradeCooldown();
-      await expect(hre.upgrades.upgradeProxy(strategy.address, StrategyV3)).to.be.revertedWith(
-        'cooldown not initiated or still active',
-      );
-
-      await moveTimeForward(timeToSkip.toNumber());
-      await hre.upgrades.upgradeProxy(strategy.address, StrategyV3);
     });
   });
 
