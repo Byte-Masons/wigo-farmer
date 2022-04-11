@@ -85,9 +85,8 @@ contract ReaperStrategyWigo is ReaperBaseStrategyv2 {
      *      1. Claims {WIGO} from the {masterChef}.
      *      2. Swaps {WIGO} to {WFTM} using {WIGO_ROUTER}.
      *      3. Claims fees for the harvest caller and treasury.
-     *      4. Swaps the {WFTM} token for {lpToken0} using {WIGO_ROUTER}.
-     *      5. Swaps half of {lpToken0} to {lpToken1} using {WIGO_ROUTER}.
-     *      6. Creates new LP tokens and deposits.
+     *      4. Swaps WFTM to LP want token
+     *      5. Deposits {want} into {masterChef} to farm Wigo rewards
      */
     function _harvestCore() internal override {
         _claimRewards();
@@ -196,18 +195,21 @@ contract ReaperStrategyWigo is ReaperBaseStrategyv2 {
      *      Profit is denominated in WFTM, and takes fees into account.
      */
     function estimateHarvest() external view override returns (uint256 profit, uint256 callFeeToUser) {
-        // uint256 pendingReward = IMasterChef(masterChef).pendingShare(poolId, address(this));
-        // uint256 totalRewards = pendingReward + IERC20Upgradeable(WIGO).balanceOf(address(this));
+        uint256 pendingReward = IMasterChef(masterChef).pendingWigo(poolId, address(this));
+        uint256 totalRewards = pendingReward + IERC20Upgradeable(WIGO).balanceOf(address(this));
 
-        // if (totalRewards != 0) {
-        //     profit += IUniswapV2Router02(WIGO_ROUTER).getAmountsOut(totalRewards, WIGOToWftmPath)[1];
-        // }
+        if (totalRewards != 0) {
+            address[] memory path = new address[](2);
+            path[0] = WIGO;
+            path[1] = WFTM;
+            profit += IUniswapV2Router02(WIGO_ROUTER).getAmountsOut(totalRewards, path)[1];
+        }
 
-        // profit += IERC20Upgradeable(WFTM).balanceOf(address(this));
+        profit += IERC20Upgradeable(WFTM).balanceOf(address(this));
 
-        // uint256 wftmFee = (profit * totalFee) / PERCENT_DIVISOR;
-        // callFeeToUser = (wftmFee * callFee) / PERCENT_DIVISOR;
-        // profit -= wftmFee;
+        uint256 wftmFee = (profit * totalFee) / PERCENT_DIVISOR;
+        callFeeToUser = (wftmFee * callFee) / PERCENT_DIVISOR;
+        profit -= wftmFee;
     }
 
     /**

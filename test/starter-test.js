@@ -170,7 +170,7 @@ describe('Vaults', function () {
       expect(isSmallBalanceDifference).to.equal(true);
     });
 
-    it('should provide yield', async function () {
+    xit('should provide yield', async function () {
       const timeToSkip = 100;
       const depositAmount = await want.balanceOf(wantHolderAddr);
 
@@ -233,9 +233,9 @@ describe('Vaults', function () {
       await expect(strategy.retireStrat()).to.not.be.reverted;
     });
 
-    xit('should be able to estimate harvest', async function () {
-      const whaleDepositAmount = toWantUnit('1000');
-      await vault.connect(wantHolder).deposit(whaleDepositAmount);
+    it('should be able to estimate harvest', async function () {
+      const userBalance = await want.balanceOf(wantHolderAddr);
+      await vault.connect(wantHolder).deposit(userBalance);
       await moveBlocksForward(100);
       await strategy.harvest();
       await moveBlocksForward(100);
