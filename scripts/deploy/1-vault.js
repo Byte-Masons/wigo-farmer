@@ -1,9 +1,9 @@
 async function main() {
   const Vault = await ethers.getContractFactory('ReaperVaultv1_4');
 
-  const wantAddress = '0x45f4682B560d4e3B8FF1F1b3A38FDBe775C7177b';
-  const tokenName = 'TOMB-MAI Tomb Crypt';
-  const tokenSymbol = 'rf-TOMB-MAI';
+  const wantAddress = '0xB66E5c89EbA830B31B3dDcc468dD50b3256737c5';
+  const tokenName = 'FTM-WIGO WigoSwap Crypt';
+  const tokenSymbol = 'rf-ws-FTM-WIGO';
   const depositFee = 0;
   const tvlCap = ethers.constants.MaxUint256;
 
